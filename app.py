@@ -51,6 +51,9 @@ def get_db_connection():
 def index():
     """Página inicial"""
     try:
+        # Garantir que o banco está inicializado
+        init_db()
+        
         conn = get_db_connection()
         
         # Estatísticas
@@ -97,6 +100,9 @@ def novo_pedido():
         tamanho = request.form['tamanho']
         tipo_frete = request.form['tipo_frete']
         
+        # Garantir que o banco está inicializado
+        init_db()
+        
         conn = get_db_connection()
         try:
             conn.execute('''
@@ -119,6 +125,9 @@ def novo_grupo():
     """Criar novo grupo"""
     if request.method == 'POST':
         nome = request.form['nome']
+        
+        # Garantir que o banco está inicializado
+        init_db()
         
         conn = get_db_connection()
         conn.execute('INSERT INTO grupos (nome) VALUES (?)', (nome,))
