@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block title %}Editar Código de Rastreio - Grupo {{
+grupo.nome }}{% endblock %} {% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">
+            <i class="fas fa-truck"></i>
+            Editar Código de Rastreio - Grupo {{ grupo.nome }}
+          </h4>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            <div class="mb-3">
+              <label for="codigo_rastreio" class="form-label">
+                <i class="fas fa-barcode"></i>
+                Código de Rastreio
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="codigo_rastreio"
+                name="codigo_rastreio"
+                value="{{ grupo.codigo_rastreio or '' }}"
+                placeholder="Digite o código de rastreio do grupo"
+              />
+              <div class="form-text">
+                Digite o código de rastreio fornecido pela transportadora para
+                este grupo de pedidos.
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Voltar
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Salvar Código de Rastreio
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

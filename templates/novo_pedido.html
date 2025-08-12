@@ -1,0 +1,108 @@
+{% extends "base.html" %} {% block title %}Novo Pedido - Gerenciador de
+Pedidos{% endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-plus me-2"></i>
+          Cadastrar Novo Pedido
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="mb-3">
+            <label for="id_pedido" class="form-label">
+              <i class="fas fa-hashtag me-1"></i>ID do Pedido *
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="id_pedido"
+              name="id_pedido"
+              required
+              placeholder="Ex: PED001"
+            />
+            <div class="form-text">Identificador único do pedido</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="nome_cliente" class="form-label">
+              <i class="fas fa-user me-1"></i>Nome do Cliente *
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="nome_cliente"
+              name="nome_cliente"
+              required
+              placeholder="Nome completo do cliente"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="produto" class="form-label">
+              <i class="fas fa-tshirt me-1"></i>Produto *
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="produto"
+              name="produto"
+              required
+              placeholder="Ex: Brasil 2024, Real Madrid, etc."
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="tamanho" class="form-label">
+              <i class="fas fa-ruler me-1"></i>Tamanho *
+            </label>
+            <select class="form-select" id="tamanho" name="tamanho" required>
+              <option value="">Selecione o tamanho</option>
+              <option value="PP">PP</option>
+              <option value="P">P</option>
+              <option value="M">M</option>
+              <option value="G">G</option>
+              <option value="GG">GG</option>
+              <option value="XG">XG</option>
+              <option value="XXG">XXG</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="tipo_frete" class="form-label">
+              <i class="fas fa-shipping-fast me-1"></i>Tipo de Frete *
+            </label>
+            <select
+              class="form-select"
+              id="tipo_frete"
+              name="tipo_frete"
+              required
+            >
+              <option value="">Selecione o tipo de frete</option>
+              <option value="FRETE PADRÃO">FRETE PADRÃO</option>
+              <option value="EXPRESSO">EXPRESSO</option>
+            </select>
+            <div class="form-text">
+              <strong>FRETE PADRÃO:</strong> Camisas chegam primeiro para você,
+              depois envia ao cliente<br />
+              <strong>EXPRESSO:</strong> Envio direto para o cliente (não entra
+              em grupos)
+            </div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i>Cadastrar Pedido
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-1"></i>Voltar ao Dashboard
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

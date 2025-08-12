@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Pedido - Gerenciador de Pedidos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>
+                    Editar Pedido {{ pedido.id_pedido }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="id_pedido" class="form-label">
+                            <i class="fas fa-hashtag me-1"></i>ID do Pedido
+                        </label>
+                        <input type="text" class="form-control" id="id_pedido" 
+                               value="{{ pedido.id_pedido }}" readonly>
+                        <div class="form-text">ID do pedido não pode ser alterado</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="nome_cliente" class="form-label">
+                            <i class="fas fa-user me-1"></i>Nome do Cliente *
+                        </label>
+                        <input type="text" class="form-control" id="nome_cliente" name="nome_cliente" 
+                               value="{{ pedido.nome_cliente }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="produto" class="form-label">
+                            <i class="fas fa-tshirt me-1"></i>Produto *
+                        </label>
+                        <input type="text" class="form-control" id="produto" name="produto" 
+                               value="{{ pedido.produto }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tamanho" class="form-label">
+                            <i class="fas fa-ruler me-1"></i>Tamanho *
+                        </label>
+                        <select class="form-select" id="tamanho" name="tamanho" required>
+                            <option value="PP" {% if pedido.tamanho == 'PP' %}selected{% endif %}>PP</option>
+                            <option value="P" {% if pedido.tamanho == 'P' %}selected{% endif %}>P</option>
+                            <option value="M" {% if pedido.tamanho == 'M' %}selected{% endif %}>M</option>
+                            <option value="G" {% if pedido.tamanho == 'G' %}selected{% endif %}>G</option>
+                            <option value="GG" {% if pedido.tamanho == 'GG' %}selected{% endif %}>GG</option>
+                            <option value="XG" {% if pedido.tamanho == 'XG' %}selected{% endif %}>XG</option>
+                            <option value="XXG" {% if pedido.tamanho == 'XXG' %}selected{% endif %}>XXG</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tipo_frete" class="form-label">
+                            <i class="fas fa-shipping-fast me-1"></i>Tipo de Frete *
+                        </label>
+                        <select class="form-select" id="tipo_frete" name="tipo_frete" required>
+                            <option value="FRETE PADRÃO" {% if pedido.tipo_frete == 'FRETE PADRÃO' %}selected{% endif %}>
+                                FRETE PADRÃO
+                            </option>
+                            <option value="EXPRESSO" {% if pedido.tipo_frete == 'EXPRESSO' %}selected{% endif %}>
+                                EXPRESSO
+                            </option>
+                        </select>
+                        <div class="form-text">
+                            <strong>FRETE PADRÃO:</strong> Camisas chegam primeiro para você, depois envia ao cliente<br>
+                            <strong>EXPRESSO:</strong> Envio direto para o cliente (não entra em grupos)
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Salvar Alterações
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Voltar ao Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

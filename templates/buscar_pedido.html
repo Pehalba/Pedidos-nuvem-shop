@@ -1,0 +1,114 @@
+{% extends "base.html" %} {% block title %}Buscar Pedido - Gerenciador de
+Pedidos{% endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-search me-2"></i>
+          Buscar Pedido por ID
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="mb-3">
+            <label for="id_pedido" class="form-label">
+              <i class="fas fa-hashtag me-1"></i>ID do Pedido *
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="id_pedido"
+              name="id_pedido"
+              required
+              placeholder="Digite o ID do pedido"
+            />
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-search me-1"></i>Buscar Pedido
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-1"></i>Voltar ao Dashboard
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% if pedido %}
+    <div class="card mt-4">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="fas fa-info-circle me-2"></i>
+          Resultado da Busca
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>ID do Pedido:</strong><br />{{ pedido.id_pedido }}</p>
+            <p><strong>Cliente:</strong><br />{{ pedido.nome_cliente }}</p>
+            <p><strong>Produto:</strong><br />{{ pedido.produto }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Tamanho:</strong><br />{{ pedido.tamanho }}</p>
+            <p>
+              <strong>Tipo de Frete:</strong><br />
+              {% if pedido.tipo_frete == 'EXPRESSO' %}
+              <span class="badge bg-warning">
+                <i class="fas fa-shipping-fast me-1"></i>EXPRESSO
+              </span>
+              {% else %}
+              <span class="badge bg-primary">
+                <i class="fas fa-shipping-fast me-1"></i>FRETE PADRÃO
+              </span>
+              {% endif %}
+            </p>
+            <p>
+              <strong>Grupo:</strong><br />
+              {% if pedido.nome_grupo %}
+              <span class="badge bg-success">{{ pedido.nome_grupo }}</span>
+              {% else %}
+              <span class="text-muted">Não está em nenhum grupo</span>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <div class="btn-group">
+            <a
+              href="{{ url_for('editar_pedido', pedido_id=pedido.id_pedido) }}"
+              class="btn btn-outline-primary"
+            >
+              <i class="fas fa-edit me-1"></i>Editar Pedido
+            </a>
+            {% if pedido.tipo_frete == 'EXPRESSO' %}
+            <a
+              href="{{ url_for('excluir_pedido', pedido_id=pedido.id_pedido) }}"
+              class="btn btn-outline-danger"
+              onclick="return confirm('Excluir pedido?')"
+            >
+              <i class="fas fa-trash me-1"></i>Excluir Pedido
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% elif request.method == 'POST' %}
+    <div class="card mt-4">
+      <div class="card-body text-center">
+        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+        <h5 class="text-warning">Pedido não encontrado</h5>
+        <p class="text-muted">
+          Nenhum pedido foi encontrado com o ID informado.
+        </p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %} {% block title %}Marcar como Enviado - {{ grupo.nome
+}}{% endblock %} {% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0">Marcar Grupo como Enviado</h4>
+        </div>
+        <div class="card-body">
+          <p><strong>{{ grupo.nome }}</strong> será marcado como enviado.</p>
+
+          <form method="POST">
+            <div class="mb-3">
+              <label for="codigo_rastreio" class="form-label">
+                Código de Rastreio <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control form-control-lg"
+                id="codigo_rastreio"
+                name="codigo_rastreio"
+                placeholder="Digite o código de rastreio"
+                required
+                autofocus
+              />
+              <small>Rastreio</small>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg"
+                >Cancelar</a
+              >
+              <button type="submit" class="btn btn-success btn-lg">
+                Marcar como Enviado
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

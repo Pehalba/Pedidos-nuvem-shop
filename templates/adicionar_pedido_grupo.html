@@ -1,0 +1,118 @@
+{% extends "base.html" %} {% block title %}Adicionar Pedido ao Grupo -
+Gerenciador de Pedidos{% endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-10">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-plus me-2"></i>
+          Adicionar Pedido ao {{ grupo.nome }}
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if pedidos_disponiveis %}
+        <form method="POST">
+          <div class="mb-3">
+            <label for="pedido_id" class="form-label">
+              <i class="fas fa-list me-1"></i>Selecionar Pedido *
+            </label>
+            <select
+              class="form-select"
+              id="pedido_id"
+              name="pedido_id"
+              required
+            >
+              <option value="">Escolha um pedido disponível</option>
+              {% for pedido in pedidos_disponiveis %}
+              <option value="{{ pedido.id_pedido }}">
+                {{ pedido.id_pedido }} - {{ pedido.nome_cliente }} ({{
+                pedido.produto }} - {{ pedido.tamanho }})
+              </option>
+              {% endfor %}
+            </select>
+            <div class="form-text">
+              Pedidos disponíveis para adicionar ao grupo (apenas FRETE PADRÃO)
+            </div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-plus me-1"></i>Adicionar ao Grupo
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-1"></i>Voltar ao Dashboard
+            </a>
+          </div>
+        </form>
+        {% else %}
+        <div class="text-center py-4">
+          <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+          <h5 class="text-warning">Nenhum pedido disponível</h5>
+          <p class="text-muted">
+            Não há pedidos com FRETE PADRÃO disponíveis para adicionar ao grupo.
+          </p>
+          <div class="d-grid gap-2 d-md-block">
+            <a href="{{ url_for('novo_pedido') }}" class="btn btn-primary">
+              <i class="fas fa-plus me-1"></i>Criar Novo Pedido
+            </a>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-1"></i>Voltar ao Dashboard
+            </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if pedidos_disponiveis %}
+    <div class="card mt-4">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="fas fa-list me-2"></i>
+          Pedidos Disponíveis ({{ pedidos_disponiveis|length }})
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          {% for pedido in pedidos_disponiveis %}
+          <div class="col-md-6 col-lg-4 mb-3">
+            <div class="pedido-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ pedido.id_pedido }}</strong><br />
+                  <small>{{ pedido.nome_cliente }}</small><br />
+                  <small class="text-muted"
+                    >{{ pedido.produto }} - {{ pedido.tamanho }}</small
+                  ><br />
+                  <small class="text-primary">
+                    <i class="fas fa-shipping-fast me-1"></i>FRETE PADRÃO
+                  </small>
+                </div>
+                <div class="btn-group btn-group-sm">
+                  <a
+                    href="{{ url_for('editar_pedido', pedido_id=pedido.id_pedido) }}"
+                    class="btn btn-outline-primary btn-sm"
+                    title="Editar"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a
+                    href="{{ url_for('excluir_pedido', pedido_id=pedido.id_pedido, next=request.path) }}"
+                    class="btn btn-outline-danger btn-sm"
+                    title="Excluir"
+                    onclick="return confirm('Excluir pedido {{ pedido.id_pedido }}?')"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

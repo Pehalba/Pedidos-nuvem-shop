@@ -1,0 +1,132 @@
+{% extends "base.html" %} {% block title %}Importar CSV - Gerenciador de
+Pedidos{% endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-10">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-upload me-2"></i>
+          Importar Pedidos de CSV
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="arquivo" class="form-label">
+              <i class="fas fa-file-csv me-1"></i>Selecionar Arquivo CSV *
+            </label>
+            <input
+              type="file"
+              class="form-control"
+              id="arquivo"
+              name="arquivo"
+              accept=".csv"
+              required
+            />
+            <div class="form-text">
+              Selecione um arquivo CSV com os dados dos pedidos
+            </div>
+          </div>
+
+          <div class="alert alert-info">
+            <h6>
+              <i class="fas fa-info-circle me-1"></i>Colunas Necessárias no CSV:
+            </h6>
+            <div class="row">
+              <div class="col-md-6">
+                <ul class="mb-0">
+                  <li>Número do Pedido</li>
+                  <li>E-mail</li>
+                  <li>Data</li>
+                  <li>Status do Pedido</li>
+                  <li>Status do Pagamento</li>
+                  <li>Status do Envio</li>
+                  <li>Moeda</li>
+                  <li>Subtotal</li>
+                  <li>Desconto</li>
+                  <li>Valor do Frete</li>
+                  <li>Total</li>
+                  <li>Nome do comprador</li>
+                  <li>CPF / CNPJ</li>
+                  <li>Telefone</li>
+                  <li>Nome para a entrega</li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <ul class="mb-0">
+                  <li>Telefone para a entrega</li>
+                  <li>Endereço</li>
+                  <li>Número</li>
+                  <li>Complemento</li>
+                  <li>Bairro</li>
+                  <li>Cidade</li>
+                  <li>Código postal</li>
+                  <li>Estado</li>
+                  <li>País</li>
+                  <li>Forma de Entrega</li>
+                  <li>Forma de Pagamento</li>
+                  <li>Cupom de Desconto</li>
+                  <li>Anotações do Comprador</li>
+                  <li>Anotações do Vendedor</li>
+                  <li>Data de pagamento</li>
+                  <li>Data de envío</li>
+                  <li>Nome do Produto</li>
+                  <li>Valor do Produto</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warning">
+            <h6><i class="fas fa-exclamation-triangle me-1"></i>Importante:</h6>
+            <ul class="mb-0">
+              <li>O arquivo deve estar em formato CSV</li>
+              <li>
+                As colunas devem ter exatamente os nomes especificados acima
+              </li>
+              <li>Pedidos duplicados (mesmo número) serão ignorados</li>
+              <li>
+                O tipo de frete será determinado automaticamente pela "Forma de
+                Entrega"
+              </li>
+              <li>
+                O tamanho será extraído do nome do produto ou definido como "M"
+                por padrão
+              </li>
+            </ul>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-upload me-1"></i>Importar Pedidos
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-1"></i>Voltar ao Dashboard
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="fas fa-list me-2"></i>
+          Pedidos Importados
+        </h6>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">
+          Visualize todos os pedidos importados do CSV com dados completos.
+        </p>
+        <a
+          href="{{ url_for('pedidos_importados') }}"
+          class="btn btn-outline-primary"
+        >
+          <i class="fas fa-eye me-1"></i>Ver Pedidos Importados
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %} {% block title %}Novo Grupo - Gerenciador de Pedidos{%
+endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-layer-group me-2"></i>
+          Criar Novo Grupo
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="mb-3">
+            <label for="nome" class="form-label">
+              <i class="fas fa-tag me-1"></i>Nome do Grupo *
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="nome"
+              name="nome"
+              required
+              placeholder="Ex: Grupo 1, Grupo 2, etc."
+            />
+            <div class="form-text">
+              Nome para identificar o grupo de pedidos
+            </div>
+          </div>
+
+          <div class="alert alert-info">
+            <h6>
+              <i class="fas fa-info-circle me-1"></i>Informações sobre Grupos:
+            </h6>
+            <ul class="mb-0">
+              <li>Máximo de 5 pedidos por grupo</li>
+              <li>
+                Apenas pedidos com <strong>FRETE PADRÃO</strong> podem ser
+                adicionados
+              </li>
+              <li>Pedidos <strong>EXPRESSO</strong> não entram em grupos</li>
+              <li>Você pode adicionar pedidos ao grupo após criá-lo</li>
+            </ul>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i>Criar Grupo
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-1"></i>Voltar ao Dashboard
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

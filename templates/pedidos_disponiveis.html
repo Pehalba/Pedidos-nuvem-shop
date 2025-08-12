@@ -1,0 +1,189 @@
+{% extends "base.html" %} {% block title %}Pedidos Disponíveis - Gerenciador de
+Pedidos{% endblock %} {% block content %}
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h3">
+        <i class="fas fa-list me-2"></i>
+        Pedidos Disponíveis
+      </h1>
+      <div class="btn-group">
+        <a href="{{ url_for('novo_pedido') }}" class="btn btn-primary">
+          <i class="fas fa-plus me-1"></i>Novo Pedido
+        </a>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left me-1"></i>Voltar
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pedidos FRETE PADRÃO Disponíveis -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-shipping-fast me-2"></i>
+          Pedidos FRETE PADRÃO Disponíveis ({{ pedidos_padrao|length }})
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if pedidos_padrao %}
+        <div class="row">
+          {% for pedido in pedidos_padrao %}
+          <div class="col-md-6 col-lg-4 mb-3">
+            <div class="pedido-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ pedido.id_pedido }}</strong><br />
+                  <small>{{ pedido.nome_cliente }}</small><br />
+                  <small class="text-muted"
+                    >{{ pedido.produto }} - {{ pedido.tamanho }}</small
+                  ><br />
+                  <small class="text-primary">
+                    <i class="fas fa-shipping-fast me-1"></i>FRETE PADRÃO
+                  </small>
+                </div>
+                <div class="btn-group btn-group-sm">
+                  <a
+                    href="{{ url_for('editar_pedido', pedido_id=pedido.id_pedido) }}"
+                    class="btn btn-outline-primary btn-sm"
+                    title="Editar"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a
+                    href="{{ url_for('excluir_pedido', pedido_id=pedido.id_pedido, next=request.path) }}"
+                    class="btn btn-outline-danger btn-sm"
+                    title="Excluir"
+                    onclick="return confirm('Excluir pedido {{ pedido.id_pedido }}?')"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+          <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">Nenhum pedido FRETE PADRÃO disponível</h5>
+          <p class="text-muted">
+            Todos os pedidos com frete padrão estão em grupos ou não existem.
+          </p>
+          <a href="{{ url_for('novo_pedido') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Criar Novo Pedido
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pedidos EXPRESSO Disponíveis -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-shipping-fast me-2"></i>
+          Pedidos EXPRESSO Disponíveis ({{ pedidos_expresso|length }})
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if pedidos_expresso %}
+        <div class="row">
+          {% for pedido in pedidos_expresso %}
+          <div class="col-md-6 col-lg-4 mb-3">
+            <div class="expresso-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ pedido.id_pedido }}</strong><br />
+                  <small>{{ pedido.nome_cliente }}</small><br />
+                  <small class="text-muted"
+                    >{{ pedido.produto }} - {{ pedido.tamanho }}</small
+                  ><br />
+                  <small class="text-warning">
+                    <i class="fas fa-shipping-fast me-1"></i>EXPRESSO
+                  </small>
+                </div>
+                <div class="btn-group btn-group-sm">
+                  <a
+                    href="{{ url_for('editar_pedido', pedido_id=pedido.id_pedido) }}"
+                    class="btn btn-outline-primary btn-sm"
+                    title="Editar"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a
+                    href="{{ url_for('excluir_pedido', pedido_id=pedido.id_pedido, next=request.path) }}"
+                    class="btn btn-outline-danger btn-sm"
+                    title="Excluir"
+                    onclick="return confirm('Excluir pedido {{ pedido.id_pedido }}?')"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+          <i class="fas fa-shipping-fast fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">Nenhum pedido EXPRESSO disponível</h5>
+          <p class="text-muted">
+            Todos os pedidos expresso estão sendo processados ou não existem.
+          </p>
+          <a href="{{ url_for('novo_pedido') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Criar Novo Pedido
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Informações -->
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="fas fa-info-circle me-2"></i>
+          Informações sobre Pedidos Disponíveis
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Pedidos FRETE PADRÃO:</h6>
+            <ul>
+              <li>Podem ser adicionados a grupos</li>
+              <li>Máximo 5 pedidos por grupo</li>
+              <li>Aparecem no dashboard quando em grupos</li>
+              <li>Podem ser editados ou excluídos</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6>Pedidos EXPRESSO:</h6>
+            <ul>
+              <li>Não entram em grupos</li>
+              <li>Envio direto ao cliente</li>
+              <li>Aparecem separadamente no dashboard</li>
+              <li>Podem ser editados ou excluídos</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
