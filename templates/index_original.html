@@ -1,0 +1,292 @@
+{% extends "base.html" %} {% block title %}Dashboard - Gerenciador de Pedidos{%
+endblock %} {% block content %}
+<div class="row mb-4">
+  <div class="col-12">
+    <h1 class="display-5 text-center mb-4">
+      <i class="fas fa-tshirt text-primary me-3"></i>
+      Dashboard de Pedidos
+    </h1>
+  </div>
+</div>
+
+<!-- Estatísticas -->
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title text-primary">
+          <i class="fas fa-layer-group"></i>
+        </h5>
+        <h3 class="text-primary">{{ grupos|length }}</h3>
+        <p class="card-text">Grupos Criados</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title text-success">
+          <i class="fas fa-shipping-fast"></i>
+        </h5>
+        <h3 class="text-success">{{ pedidos_expresso|length }}</h3>
+        <p class="card-text">Pedidos Expresso</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title text-warning">
+          <i class="fas fa-clock"></i>
+        </h5>
+        <h3 class="text-warning">
+          {% set total_pendentes = 0 %} {% for grupo in grupos %} {% if not
+          grupo.enviado %} {% set total_pendentes = total_pendentes +
+          grupo.total_pedidos %} {% endif %} {% endfor %} {{ total_pendentes }}
+        </h3>
+        <p class="card-text">Pedidos Pendentes</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title text-info">
+          <i class="fas fa-check-circle"></i>
+        </h5>
+        <h3 class="text-info">
+          {% set total_enviados = 0 %} {% for grupo in grupos %} {% if
+          grupo.enviado %} {% set total_enviados = total_enviados +
+          grupo.total_pedidos %} {% endif %} {% endfor %} {{ total_enviados }}
+        </h3>
+        <p class="card-text">Pedidos Enviados</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Grupos de Pedidos -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0">
+          <i class="fas fa-layer-group me-2"></i>
+          Grupos de Pedidos (FRETE PADRÃO)
+        </h5>
+        <div class="btn-group btn-group-sm">
+          <a href="{{ url_for('novo_grupo') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i>Novo Grupo
+          </a>
+          <a
+            href="{{ url_for('limpar_todos_dados') }}"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('ATENÇÃO: Isso irá excluir TODOS os pedidos e grupos. Tem certeza?')"
+            title="Limpar Todos os Dados"
+          >
+            <i class="fas fa-trash me-1"></i>Limpar Tudo
+          </a>
+        </div>
+      </div>
+      <div class="card-body">
+        {% if grupos %}
+        <div class="row">
+          {% for grupo in grupos %}
+          <div class="col-md-6 col-lg-4 mb-3">
+            <div
+              class="card grupo-card h-100 {% if grupo.enviado %}enviado{% endif %}"
+            >
+              <div
+                class="card-header d-flex justify-content-between align-items-center"
+              >
+                <div>
+                  <h6 class="mb-0">{{ grupo.nome }}</h6>
+                  {% if grupo.codigo_rastreio %}
+                  <small class="text-muted">
+                    <i class="fas fa-barcode me-1"></i>{{ grupo.codigo_rastreio
+                    }}
+                  </small>
+                  {% endif %}
+                </div>
+                <div>
+                  {% if grupo.enviado %}
+                  <span class="badge bg-success status-badge">
+                    <i class="fas fa-check me-1"></i>Enviado
+                  </span>
+                  {% else %}
+                  <span class="badge bg-warning status-badge">
+                    <i class="fas fa-clock me-1"></i>Pendente
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="card-body">
+                <p class="text-muted small mb-2">
+                  <i class="fas fa-box me-1"></i>
+                  {{ grupo.total_pedidos }}/5 pedidos
+                </p>
+                {% if pedidos_por_grupo[grupo.id] %}
+                <div class="mb-3">
+                  {% for pedido in pedidos_por_grupo[grupo.id] %}
+                  <div class="pedido-item">
+                    <div
+                      class="d-flex justify-content-between align-items-start"
+                    >
+                      <div>
+                        <strong>{{ pedido.id_pedido }}</strong><br />
+                        <small>{{ pedido.nome_cliente }}</small><br />
+                        <small class="text-muted"
+                          >{{ pedido.produto }} - {{ pedido.tamanho }}</small
+                        >
+                      </div>
+                      <div class="btn-group btn-group-sm">
+                        <a
+                          href="{{ url_for('editar_pedido', pedido_id=pedido.id_pedido) }}"
+                          class="btn btn-outline-primary btn-sm"
+                          title="Editar"
+                        >
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <a
+                          href="{{ url_for('remover_pedido_grupo', grupo_id=grupo.id, pedido_id=pedido.id_pedido) }}"
+                          class="btn btn-outline-danger btn-sm"
+                          title="Remover do grupo"
+                          onclick="return confirm('Remover pedido do grupo?')"
+                        >
+                          <i class="fas fa-times"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted small">Nenhum pedido no grupo</p>
+                {% endif %}
+
+                <div class="d-flex gap-1 flex-wrap">
+                  {% if grupo.total_pedidos < 5 %}
+                  <a
+                    href="{{ url_for('adicionar_pedido_grupo', grupo_id=grupo.id) }}"
+                    class="btn btn-primary btn-sm"
+                  >
+                    <i class="fas fa-plus me-1"></i>Adicionar Pedido
+                  </a>
+                  {% endif %} {% if grupo.enviado %}
+                  <a
+                    href="{{ url_for('marcar_grupo_nao_enviado', grupo_id=grupo.id) }}"
+                    class="btn btn-warning btn-sm"
+                  >
+                    <i class="fas fa-undo me-1"></i>Marcar Pendente
+                  </a>
+                  {% else %}
+                  <a
+                    href="{{ url_for('marcar_grupo_enviado', grupo_id=grupo.id) }}"
+                    class="btn btn-success btn-sm"
+                  >
+                    <i class="fas fa-check me-1"></i>Marcar Enviado
+                  </a>
+                  {% endif %}
+                  <a
+                    href="{{ url_for('editar_rastreio_grupo', grupo_id=grupo.id) }}"
+                    class="btn btn-info btn-sm"
+                    title="Editar Código de Rastreio"
+                  >
+                    <i class="fas fa-barcode me-1"></i>Rastreio
+                  </a>
+                  <a
+                    href="{{ url_for('excluir_grupo', grupo_id=grupo.id) }}"
+                    class="btn btn-danger btn-sm"
+                    title="Excluir Grupo"
+                    onclick="return confirm('Tem certeza que deseja excluir este grupo? Os pedidos serão mantidos.')"
+                  >
+                    <i class="fas fa-trash me-1"></i>Excluir
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+          <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">Nenhum grupo criado</h5>
+          <p class="text-muted">
+            Crie seu primeiro grupo para organizar os pedidos
+          </p>
+          <a href="{{ url_for('novo_grupo') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Criar Primeiro Grupo
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pedidos Expresso -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-shipping-fast me-2"></i>
+          Pedidos Expresso (Envio Direto)
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if pedidos_expresso %}
+        <div class="row">
+          {% for pedido in pedidos_expresso %}
+          <div class="col-md-6 col-lg-4 mb-3">
+            <div class="expresso-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ pedido.id_pedido }}</strong><br />
+                  <small>{{ pedido.nome_cliente }}</small><br />
+                  <small class="text-muted"
+                    >{{ pedido.produto }} - {{ pedido.tamanho }}</small
+                  ><br />
+                  <small class="text-warning">
+                    <i class="fas fa-shipping-fast me-1"></i>EXPRESSO
+                  </small>
+                </div>
+                <div class="btn-group btn-group-sm">
+                  <a
+                    href="{{ url_for('editar_pedido', pedido_id=pedido.id_pedido) }}"
+                    class="btn btn-outline-primary btn-sm"
+                    title="Editar"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a
+                    href="{{ url_for('excluir_pedido', pedido_id=pedido.id_pedido, next=request.path) }}"
+                    class="btn btn-outline-danger btn-sm"
+                    title="Excluir"
+                    onclick="return confirm('Excluir pedido?')"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+          <i class="fas fa-shipping-fast fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">Nenhum pedido expresso</h5>
+          <p class="text-muted">
+            Os pedidos com frete expresso aparecerão aqui
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
