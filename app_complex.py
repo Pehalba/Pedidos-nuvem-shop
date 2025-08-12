@@ -1,16 +1,23 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file, flash
 import sqlite3
-import os
+import csv
+import io
 from datetime import datetime
+import os
+try:
+    import chardet
+    CHARDET_AVAILABLE = True
+except ImportError:
+    CHARDET_AVAILABLE = False
 
 app = Flask(__name__)
-app.secret_key = 'sua_chave_secreta_aqui'
+app.secret_key = 'sua_chave_secreta_aqui'  # Necessário para flash messages
 
 # Configuração do banco de dados
 DATABASE = 'pedidos.db'
 
 def init_db():
-    """Inicializa o banco de dados"""
+    """Inicializa o banco de dados com as tabelas necessárias"""
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     
@@ -24,7 +31,8 @@ def init_db():
             tamanho TEXT NOT NULL,
             tipo_frete TEXT NOT NULL,
             grupo_id INTEGER,
-            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (grupo_id) REFERENCES grupos (id)
         )
     ''')
     
@@ -33,10 +41,59 @@ def init_db():
         CREATE TABLE IF NOT EXISTS grupos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
+            codigo_rastreio TEXT,
             enviado BOOLEAN DEFAULT 0,
             data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    # Tabela para dados completos dos pedidos importados
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS pedidos_completos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            numero_pedido TEXT UNIQUE NOT NULL,
+            email TEXT,
+            data_pedido TEXT,
+            status_pedido TEXT,
+            status_pagamento TEXT,
+            status_envio TEXT,
+            moeda TEXT,
+            subtotal REAL,
+            desconto REAL,
+            valor_frete REAL,
+            total REAL,
+            nome_comprador TEXT,
+            cpf_cnpj TEXT,
+            telefone TEXT,
+            nome_entrega TEXT,
+            telefone_entrega TEXT,
+            endereco TEXT,
+            numero TEXT,
+            complemento TEXT,
+            bairro TEXT,
+            cidade TEXT,
+            codigo_postal TEXT,
+            estado TEXT,
+            pais TEXT,
+            forma_entrega TEXT,
+            forma_pagamento TEXT,
+            cupom_desconto TEXT,
+            anotacoes_comprador TEXT,
+            anotacoes_vendedor TEXT,
+            data_pagamento TEXT,
+            data_envio TEXT,
+            nome_produto TEXT,
+            valor_produto REAL,
+            data_importacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Adicionar coluna codigo_rastreio se não existir
+    try:
+        cursor.execute('ALTER TABLE grupos ADD COLUMN codigo_rastreio TEXT')
+        print("Coluna codigo_rastreio adicionada à tabela grupos")
+    except sqlite3.OperationalError:
+        print("Coluna codigo_rastreio já existe na tabela grupos")
     
     conn.commit()
     conn.close()
@@ -47,45 +104,45 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+# Rotas básicas
 @app.route('/')
 def index():
-    """Página inicial"""
-    try:
-        conn = get_db_connection()
-        
-        # Estatísticas
-        total_pedidos = conn.execute('SELECT COUNT(*) FROM pedidos').fetchone()[0]
-        pedidos_em_grupos = conn.execute('SELECT COUNT(*) FROM pedidos WHERE grupo_id IS NOT NULL').fetchone()[0]
-        total_grupos = conn.execute('SELECT COUNT(*) FROM grupos').fetchone()[0]
-        grupos_enviados = conn.execute('SELECT COUNT(*) FROM grupos WHERE enviado = 1').fetchone()[0]
-        
-        # Grupos
-        grupos = conn.execute('''
-            SELECT g.*, COUNT(p.id) as total_pedidos
-            FROM grupos g
-            LEFT JOIN pedidos p ON g.id = p.grupo_id
-            GROUP BY g.id
-            ORDER BY g.id
-        ''').fetchall()
-        
-        # Pedidos expresso
-        pedidos_expresso = conn.execute('''
-            SELECT * FROM pedidos 
-            WHERE tipo_frete = 'EXPRESSO' 
-            ORDER BY data_criacao DESC
-        ''').fetchall()
-        
-        conn.close()
-        
-        return render_template('index.html', 
-                             total_pedidos=total_pedidos,
-                             pedidos_em_grupos=pedidos_em_grupos,
-                             total_grupos=total_grupos,
-                             grupos_enviados=grupos_enviados,
-                             grupos=grupos,
-                             pedidos_expresso=pedidos_expresso)
-    except Exception as e:
-        return f"Erro: {str(e)}", 500
+    """Página inicial com dashboard"""
+    conn = get_db_connection()
+    
+    # Estatísticas gerais
+    total_pedidos = conn.execute('SELECT COUNT(*) FROM pedidos').fetchone()[0]
+    pedidos_em_grupos = conn.execute('SELECT COUNT(*) FROM pedidos WHERE grupo_id IS NOT NULL').fetchone()[0]
+    pedidos_sem_grupo = total_pedidos - pedidos_em_grupos
+    total_grupos = conn.execute('SELECT COUNT(*) FROM grupos').fetchone()[0]
+    grupos_enviados = conn.execute('SELECT COUNT(*) FROM grupos WHERE enviado = 1').fetchone()[0]
+    
+    # Grupos com pedidos
+    grupos = conn.execute('''
+        SELECT g.*, COUNT(p.id) as total_pedidos
+        FROM grupos g
+        LEFT JOIN pedidos p ON g.id = p.grupo_id
+        GROUP BY g.id
+        ORDER BY g.id
+    ''').fetchall()
+    
+    # Pedidos expresso
+    pedidos_expresso = conn.execute('''
+        SELECT * FROM pedidos 
+        WHERE tipo_frete = 'EXPRESSO' 
+        ORDER BY data_criacao DESC
+    ''').fetchall()
+    
+    conn.close()
+    
+    return render_template('index.html', 
+                         total_pedidos=total_pedidos,
+                         pedidos_em_grupos=pedidos_em_grupos,
+                         pedidos_sem_grupo=pedidos_sem_grupo,
+                         total_grupos=total_grupos,
+                         grupos_enviados=grupos_enviados,
+                         grupos=grupos,
+                         pedidos_expresso=pedidos_expresso)
 
 @app.route('/novo_pedido', methods=['GET', 'POST'])
 def novo_pedido():
@@ -156,7 +213,7 @@ def adicionar_pedido_grupo(grupo_id):
         conn.close()
         return redirect(url_for('index'))
     
-    # Pedidos disponíveis
+    # Pedidos disponíveis (sem grupo e padrão)
     pedidos_disponiveis = conn.execute('''
         SELECT * FROM pedidos 
         WHERE grupo_id IS NULL AND tipo_frete = 'FRETE PADRÃO'
@@ -244,12 +301,45 @@ def excluir_pedido(id_pedido):
     flash('Pedido excluído com sucesso!', 'success')
     return redirect(url_for('index'))
 
-@app.route('/health')
-def health_check():
-    """Verificação de saúde da aplicação"""
-    return "OK", 200
+@app.route('/exportar_csv')
+def exportar_csv():
+    """Exportar todos os pedidos para CSV"""
+    conn = get_db_connection()
+    pedidos = conn.execute('''
+        SELECT p.*, g.nome as nome_grupo, g.enviado as grupo_enviado
+        FROM pedidos p
+        LEFT JOIN grupos g ON p.grupo_id = g.id
+        ORDER BY p.data_criacao
+    ''').fetchall()
+    conn.close()
+    
+    # Criar CSV
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['ID Pedido', 'Cliente', 'Produto', 'Tamanho', 'Tipo Frete', 'Grupo', 'Enviado', 'Data Criação'])
+    
+    for pedido in pedidos:
+        writer.writerow([
+            pedido['id_pedido'],
+            pedido['nome_cliente'],
+            pedido['produto'],
+            pedido['tamanho'],
+            pedido['tipo_frete'],
+            pedido['nome_grupo'] or 'Sem grupo',
+            'Sim' if pedido['grupo_enviado'] else 'Não',
+            pedido['data_criacao']
+        ])
+    
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'pedidos_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+    )
 
 if __name__ == '__main__':
     init_db()
+    # Configuração para produção
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
