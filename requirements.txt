@@ -1,6 +1,6 @@
-Flask==2.3.3
-Werkzeug==2.3.7
-pandas==2.1.4
-numpy==1.24.3
+Flask==3.0.0
+Werkzeug==3.0.1
+pandas==2.2.0
+numpy==1.26.4
 chardet==5.2.0
 gunicorn==21.2.0
