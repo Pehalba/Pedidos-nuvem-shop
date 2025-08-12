@@ -244,6 +244,43 @@ def excluir_pedido(id_pedido):
     flash('Pedido excluído com sucesso!', 'success')
     return redirect(url_for('index'))
 
+@app.route('/exportar_csv')
+def exportar_csv():
+    """Exportar todos os pedidos para CSV"""
+    conn = get_db_connection()
+    pedidos = conn.execute('''
+        SELECT p.*, g.nome as nome_grupo, g.enviado as grupo_enviado
+        FROM pedidos p
+        LEFT JOIN grupos g ON p.grupo_id = g.id
+        ORDER BY p.data_criacao
+    ''').fetchall()
+    conn.close()
+    
+    # Criar CSV
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['ID Pedido', 'Cliente', 'Produto', 'Tamanho', 'Tipo Frete', 'Grupo', 'Enviado', 'Data Criação'])
+    
+    for pedido in pedidos:
+        writer.writerow([
+            pedido['id_pedido'],
+            pedido['nome_cliente'],
+            pedido['produto'],
+            pedido['tamanho'],
+            pedido['tipo_frete'],
+            pedido['nome_grupo'] or 'Sem grupo',
+            'Sim' if pedido['grupo_enviado'] else 'Não',
+            pedido['data_criacao']
+        ])
+    
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'pedidos_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+    )
+
 @app.route('/health')
 def health_check():
     """Verificação de saúde da aplicação"""
